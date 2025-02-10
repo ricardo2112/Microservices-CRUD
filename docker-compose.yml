@@ -1,32 +1,33 @@
-version: '3'
 services:
-  db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sql-server
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=yourStrongPassword
-    ports:
-      - "1433:1433"
-    networks:
-      - mynetwork
-
   backend:
     build:
-      context: .
+      context: ./  # Contexto de construcción apuntando al directorio 'backend'
+      dockerfile: ./Dockerfile
     container_name: song-microservice
-    ports:
-      - "3000:3000"
-    environment:
-      - DB_HOST=sql-server
-      - DB_PORT=1433
-      - DB_USER=sa
-      - DB_PASSWORD=Politecnica1
-      - DB_NAME=MusicDB_New
     depends_on:
-      - db
+      db:
+        condition: service_started
+        required: true
+    environment:
+      DB_HOST: 172.18.0.2
+      DB_NAME: MusicDB_New
+      DB_PASSWORD: Politecnica1
+      DB_PORT: "1433"
+      DB_USER: sa
     networks:
       - mynetwork
+    ports:
+      - "3001:3000"
+  db:
+    container_name: sql-server
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: Politecnica1
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    networks:
+      - mynetwork
+    ports:
+      - "1433:1433"
 
 networks:
   mynetwork:
